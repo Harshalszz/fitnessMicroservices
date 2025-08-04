@@ -8,6 +8,9 @@ import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 @RequiredArgsConstructor // this will only make constriuctor for feilds whihc are marked final
 // but allArgconstuctor will make constructor for all the feilds that are present in that class
@@ -43,5 +46,26 @@ public class ActivityService {
         response.setUpdatedAt(activity.getUpdatedAt());
 
         return response;
+    }
+
+
+
+    public List<ActivityResponse> getUserActivities(String userId) {
+
+        List<Activity> activities = activityRepository.findByUserId(userId);
+        // here creating a tream of list of activities
+        // then mapping each activity to a ActovityRepsosnse by calling a function mapToResponse
+        // And then collecting them as ToList
+
+        return activities.stream()
+                .map(this::mapToResponse)
+                .collect(Collectors.toList());
+    }
+
+    public ActivityResponse getActivityByID(String activityId) {
+
+        return activityRepository.findById(activityId)
+                .map(this::mapToResponse)
+                .orElseThrow(() -> new RuntimeException("Activity not found"));
     }
 }
