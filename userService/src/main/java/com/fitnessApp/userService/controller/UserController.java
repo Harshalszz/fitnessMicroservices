@@ -28,6 +28,14 @@ public class UserController {
         return ResponseEntity.ok(userService.register(request));
 
     }
+ // endpoint that will be call by activity webclient to validate the user
+
+    @GetMapping("/{userId}/validate")
+    public ResponseEntity<Boolean> validateUser(@PathVariable String userId){
+
+        return ResponseEntity.ok(userService.existByUserId(userId));
+
+    }
 
 
 }
