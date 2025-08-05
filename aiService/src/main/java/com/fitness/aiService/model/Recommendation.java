@@ -13,6 +13,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 @Document(collection = "recommendations")
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 @Builder
 public class Recommendation {
 
