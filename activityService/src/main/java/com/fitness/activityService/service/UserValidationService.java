@@ -16,6 +16,9 @@ public class UserValidationService {
     private final WebClient userServiceWebClient;
 
     public boolean validateUser(String userId){
+
+        //String url = "http://userService/api/users/validate/" + userId;
+
         log.info("Calling user validation API for userID : {}", userId);
         try{
 

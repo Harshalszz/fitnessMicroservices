@@ -6,18 +6,33 @@ import com.fitness.activityService.model.Activity;
 import com.fitness.activityService.repository.ActivityRepository;
 import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor // this will only make constriuctor for feilds whihc are marked final
 // but allArgconstuctor will make constructor for all the feilds that are present in that class
 public class ActivityService {
 
     private final ActivityRepository activityRepository;
     private final UserValidationService userValidationService;
+    //hepls to send and recive messages to rabiitmq
+    private final RabbitTemplate rabbitTemplate;
+
+    //we are getting these properties from application.properties files
+    @Value("${rabbitmq.exchange.name}")
+    private String exchange;
+
+
+    @Value("${rabbitmq.routing.key}")
+    private String routingKey;
+
 
     public ActivityResponse trackActivity(ActivityRequest request) {
 
@@ -37,6 +52,14 @@ public class ActivityService {
                 .build();
 
         Activity savedActivity = activityRepository.save(activity);
+
+        //Publish to rabbitMQ for AI processing
+        try{
+            rabbitTemplate.convertAndSend(exchange,routingKey,savedActivity);
+        }catch (Exception e){
+            log.error("Failed to publish activity to RabbitMQ : ",e);
+        }
+
         return mapToResponse(savedActivity);
     }
 
